@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, TextInput, View, Button, FlatList } from 'react-native';
+import { StyleSheet, View, FlatList } from 'react-native';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, push, ref, onValue, remove } from 'firebase/database';
+import { Header, Input, Button, Icon, ListItem, Text } from '@rneui/themed';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -49,24 +50,48 @@ export default function App() {
     
   return (
     <View style={styles.container}>
-      <TextInput
-      style={{width: 200, borderColor: 'gray', borderWidth: 1, fontSize: 20}}
+      <Header centerComponent={{ text: 'Shopping list', style: { color: '#fff', fontSize: 24 } }} />
+      <Input
+      label='Product'
       placeholder='Product'
       onChangeText={name => setName(name)}
       value={name}/>
-      <TextInput
-      style={{width: 200, borderColor: 'gray', borderWidth: 1, fontSize: 20}}
+      <Input
+      label='Amount'
       placeholder='Amount'
       onChangeText={amount => setAmount(amount)}
       value={amount}/>
-      <Button onPress={saveItem} title="Save" />
-      <Text style={{marginTop: 15, fontSize: 22}}>Shopping list</Text>
+      <Button containerStyle={{alignItems: 'center'}} radius={'md'} type="solid" onPress={saveItem}>
+        Save
+        <Icon name="save" color="white" style={{ marginLeft: 7 }} />
+      </Button>
       <FlatList
         renderItem={({item, index}) =>
-          <View style={styles.listcontainer}>
-            <Text style={{fontSize: 20}}>{item.name}, {item.amount} </Text>
-            <Text style={{color: '#0000ff', fontSize: 20}} onPress={() => deleteItem(index)}> bought</Text>
-          </View>}
+          <ListItem.Swipeable
+            rightWidth={80}
+            minSlideWidth={40}
+            rightContent={(action) => (
+              <Button
+                containerStyle={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  backgroundColor: '#f4f4f4',
+                }}
+                type='clear'
+                icon={{ name: 'delete', color: 'red' }}
+                onPress={() => {
+                  deleteItem(index);
+                  {action}
+                }}
+              />
+            )}
+          >
+            <ListItem.Content>
+              <ListItem.Title><Text style={{fontSize: 20}}>{item.name}</Text></ListItem.Title>
+              <ListItem.Subtitle><Text style={{fontSize: 16}}>{item.amount}</Text></ListItem.Subtitle>
+            </ListItem.Content>
+          </ListItem.Swipeable>
+        }
         data={products}
       />
     </View>
@@ -75,15 +100,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 100,
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  listcontainer: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    alignItems: 'center'
-   },
+  }
 });
